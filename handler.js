@@ -1,15 +1,10 @@
-const AWS = require("aws-sdk");
 const express = require("express");
 const serverless = require("serverless-http");
 
 const { fetchHTML, fetchMetaData } = require("./helper");
+const { getURLData, saveURLData } = require('./query');
 
 const app = express();
-
-const URLS_TABLE = process.env.URLS_TABLE;
-const dynamoDbClient = new AWS.DynamoDB.DocumentClient({
-    region: "ap-south-1",
-});
 
 app.use(express.json());
 
@@ -20,36 +15,15 @@ app.post("/url", async function (req, res) {
     }
 
     // check if meta data exists for the url in the db
-    const params = {
-        TableName: URLS_TABLE,
-        Key: {
-            url,
-        },
-    };
-    const data = await dynamoDbClient.get(params).promise();
+    const data = await getURLData(url);
     if (!data.Item) {
         // fetching meta data
         const html = await fetchHTML(url);
         const meta_data = await fetchMetaData(html);
+        saveURLData(url, meta_data);
         return res.json({ ...meta_data });
     }
-    return res.json({ 'msg' : 'url found' });
-
-
-    // const params = {
-    //   TableName: URLS_TABLE,
-    //   Item: {
-    //     url,
-    //   },
-    // };
-
-    // try {
-    //   await dynamoDbClient.put(params).promise();
-    //   res.json({ url });
-    // } catch (error) {
-    //   console.log(error);
-    //   res.status(500).json({ error: "Could not create meta data for url" });
-    // }
+    return res.json({ ...data.Item.meta_data });
 });
 
 app.use((req, res, next) => {
