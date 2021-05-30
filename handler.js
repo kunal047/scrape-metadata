@@ -20,7 +20,7 @@ app.post("/url", async function (req, res) {
         // fetching meta data
         const html = await fetchHTML(url);
         const meta_data = await fetchMetaData(html);
-        saveURLData(url, meta_data);
+        await saveURLData(url, meta_data);
         return res.json({ ...meta_data });
     }
     return res.json({ ...data.Item.meta_data });
