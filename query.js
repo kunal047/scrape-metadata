@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk");
-const URLS_TABLE = process.env.URLS_TABLE;
+const URLS_TABLE = process.env.URLS_TABLE || 'urls-table-prod';
 const dynamoDbClient = new AWS.DynamoDB.DocumentClient({
     region: "ap-south-1",
 });

@@ -23,7 +23,6 @@ const fetchMetaData = async (html) => {
     const keywords =
         $('meta[property="og:keywords"]').attr("content") ||
         $('meta[name="keywords"]').attr("content");
-    console.log(typeof images);
     if (typeof images === "string") {
         images = [images];
     }
