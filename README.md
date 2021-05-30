@@ -50,17 +50,17 @@ Serverless: Checking Stack update progress...
 Serverless: Stack update finished...
 Service Information
 service: aws-node-express-dynamodb-api
-stage: dev
-region: us-east-1
-stack: aws-node-express-dynamodb-api-dev
+stage: prod
+region: ap-south-1
+stack: aws-node-express-dynamodb-api-prod
 resources: 13
 api keys:
   None
 endpoints:
-  ANY - https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/
-  ANY - https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/{proxy+}
+  ANY - https://xxxxxxx.execute-api.ap-south-1.amazonaws.com/prod/
+  ANY - https://xxxxxxx.execute-api.ap-south-1.amazonaws.com/prod/{proxy+}
 functions:
-  api: aws-node-express-dynamodb-api-dev-api
+  api: aws-node-express-dynamodb-api-prod-api
 layers:
   None
 ```
@@ -69,34 +69,24 @@ _Note_: In current form, after deployment, your API is public and can be invoked
 
 ### Invocation
 
-After successful deployment, you can create a new user by calling the corresponding endpoint:
+After successful deployment, you can fetch meta data of the URL by calling the corresponding endpoint:
 
 ```bash
-curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/dev/users' --header 'Content-Type: application/json' --data-raw '{"name": "John", "userId": "someUserId"}'
+curl --request POST 'https://xxxxxx.execute-api.ap-south-1.amazonaws.com/prod/url' --header 'Content-Type: application/json' --data-raw '{"url": "https://css-tricks.com/essential-meta-tags-social-media/" }'
 ```
 
 Which should result in the following response:
 
 ```bash
-{"userId":"someUserId","name":"John"}
-```
-
-You can later retrieve the user by `userId` by calling the following endpoint:
-
-```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/users/someUserId
-```
-
-Which should result in the following response:
-
-```bash
-{"userId":"someUserId","name":"John"}
-```
-
-If you try to retrieve user that does not exist, you should receive the following response:
-
-```bash
-{"error":"Could not find user with provided \"userId\""}
+{
+    "site_name": "CSS-Tricks",
+    "description": "These days, almost every website encourages visitors to share its pages on social media. We’ve all seen the ubiquitous Facebook and Twitter icons, among",
+    "images": [
+        "//css-tricks.com/wp-content/uploads/2016/06/facebook-card.jpg"
+    ],
+    "title": "The Essential Meta Tags for Social Media | CSS-Tricks",
+    "url": "https://css-tricks.com/essential-meta-tags-social-media/"
+}
 ```
 
 ### Local development
@@ -125,7 +115,7 @@ custom:
     start:
       migrate: true
     stages:
-      - dev
+      - prod
 ```
 
 Additionally, we need to reconfigure `AWS.DynamoDB.DocumentClient` to connect to our local instance of DynamoDB. We can take advantage of `IS_OFFLINE` environment variable set by `serverless-offline` plugin and replace:
